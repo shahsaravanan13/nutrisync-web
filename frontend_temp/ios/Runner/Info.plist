@@ -66,5 +66,14 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>NutriSync needs microphone access so you can speak your ingredients instead of typing them.</string>
+	<key>NSSpeechRecognitionUsageDescription</key>
+	<string>NutriSync uses speech recognition to convert your spoken ingredients into text.</string>
+	<key>NSAppTransportSecurity</key>
+	<dict>
+		<key>NSAllowsArbitraryLoads</key>
+		<true/>
+	</dict>
 </dict>
 </plist>

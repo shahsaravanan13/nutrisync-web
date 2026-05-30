@@ -1,9 +1,10 @@
 fastapi
-uvicorn
+uvicorn[standard]
 python-dotenv
-google-generativeai
+google-genai
 chromadb
 pandas
 pydantic
 pydantic-settings
 requests
+groq

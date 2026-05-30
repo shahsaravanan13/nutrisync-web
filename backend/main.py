@@ -116,8 +116,7 @@ async def generate_recipe(request: RecipeRequest):
 
 if __name__ == "__main__":
     import uvicorn
-    # Bind to 0.0.0.0 so the server is reachable from:
-    # - Android Emulator via: http://10.0.2.2:8000
-    # - Physical device on same WiFi via: http://<your-pc-local-ip>:8000
-    # - Same machine (desktop Flutter) via: http://127.0.0.1:8000
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    # Railway injects PORT via environment variable
+    port = int(os.environ.get("PORT", 8000))
+    uvicorn.run(app, host="0.0.0.0", port=port)
+

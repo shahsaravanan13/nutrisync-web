@@ -1,0 +1,66 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+dist/
+build/
+*.egg
+
+# Virtual environments
+venv/
+env/
+.env/
+
+# Environment variables (secrets — never commit these)
+backend/.env
+.env
+
+# ChromaDB local database (regenerates on startup)
+backend/chroma_db/
+chroma_db/
+
+# Recipe history (local state)
+backend/recipe_history.json
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Xcode / iOS
+frontend_temp/ios/Pods/
+frontend_temp/ios/.symlinks/
+frontend_temp/ios/Flutter/Flutter.framework
+frontend_temp/ios/Flutter/Flutter.podspec
+frontend_temp/ios/DerivedData/
+frontend_temp/ios/*.xcworkspace/xcuserdata/
+frontend_temp/*.xcworkspace/
+frontend_temp/ios/build/
+
+# Android
+frontend_temp/android/.gradle/
+frontend_temp/android/local.properties
+frontend_temp/android/app/debug/
+frontend_temp/android/app/profile/
+frontend_temp/android/app/release/
+
+# Flutter
+frontend_temp/.dart_tool/
+frontend_temp/.flutter-plugins
+frontend_temp/.flutter-plugins-dependencies
+frontend_temp/.packages
+frontend_temp/build/
+frontend_temp/pubspec.lock
+
+# IDEs
+.vscode/
+.idea/
+*.iml
+*.ipr
+*.iws
+
+# Logs
+*.log

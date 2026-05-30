@@ -3,6 +3,7 @@ from chromadb.utils import embedding_functions
 import os
 import json
 from dotenv import load_dotenv
+from google import genai
 
 # Robust environment variable loading using absolute paths
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -18,11 +19,27 @@ class VectorDB:
             
         print(f"DEBUG: VectorDB initializing with key starting with: {api_key[:4]}...{api_key[-4:]}")
         
-        # Use Google's embedding function
-        self.embedding_fn = embedding_functions.GoogleGenerativeAiEmbeddingFunction(
-            api_key=api_key,
-            model_name=os.getenv("EMBEDDING_MODEL_NAME")
-        )
+        # Use the new google.genai SDK for embeddings
+        genai_client = genai.Client(api_key=api_key)
+        model_name = os.getenv("EMBEDDING_MODEL_NAME", "text-embedding-004")
+        # Strip "models/" prefix if present — new SDK doesn't need it
+        if model_name.startswith("models/"):
+            model_name = model_name[len("models/"):]
+        
+        class CustomGoogleEmbeddingFunction(embedding_functions.EmbeddingFunction):
+            def __init__(self, client, model_name):
+                self._client = client
+                self._model_name = model_name
+                
+            def __call__(self, input):
+                result = self._client.models.embed_content(
+                    model=self._model_name,
+                    contents=input
+                )
+                # result.embeddings is a list of ContentEmbedding objects
+                return [e.values for e in result.embeddings]
+
+        self.embedding_fn = CustomGoogleEmbeddingFunction(genai_client, model_name)
         self.collection = self.client.get_or_create_collection(
             name="recipes",
             embedding_function=self.embedding_fn

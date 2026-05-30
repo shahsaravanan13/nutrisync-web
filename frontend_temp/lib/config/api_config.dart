@@ -5,7 +5,7 @@ class ApiConfig {
   //
   //  1. Android EMULATOR (most common for development)
   //     The emulator maps 10.0.2.2 → your PC's localhost.
-  static const String baseUrl = 'http://192.168.29.9:8000';
+  static const String baseUrl = 'http://192.168.29.233:8000';
   //
   //  2. Physical Android/iOS device on the SAME Wi-Fi network
   //     Replace the IP below with your PC's local IP (run `ipconfig` on Windows

@@ -227,7 +227,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: _stats.asMap().entries.map((entry) {
-                      return _buildStatItem(entry.value, entry.key);
+                      return Expanded(
+                        child: _buildStatItem(entry.value, entry.key),
+                      );
                     }).toList(),
                   ),
                 ),
