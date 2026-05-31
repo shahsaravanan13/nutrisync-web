@@ -51,6 +51,14 @@ class NutritionFacts {
       fiber: json['fiber'] != null ? parseDouble(json['fiber']) : null,
     );
   }
+
+  Map<String, dynamic> toJson() => {
+        'calories': calories,
+        'protein': protein,
+        'carbohydrates': carbohydrates,
+        'fat': fat,
+        'fiber': fiber,
+      };
 }
 
 class RecipeStep {
@@ -74,6 +82,11 @@ class RecipeStep {
       instruction: json['instruction'] ?? '',
     );
   }
+
+  Map<String, dynamic> toJson() => {
+        'step_number': stepNumber,
+        'instruction': instruction,
+      };
 }
 
 class RecipeResponse {
@@ -117,6 +130,15 @@ class RecipeResponse {
       imageUrl: json['image_url'], // NEW: Parse the URL from backend
     );
   }
+
+  Map<String, dynamic> toJson() => {
+        'recipe_name': recipeName,
+        'total_time': totalTime,
+        'ingredients_used': ingredientsUsed.map((e) => e.toJson()).toList(),
+        'steps': steps.map((e) => e.toJson()).toList(),
+        'nutrition_facts': nutritionFacts.toJson(),
+        'image_url': imageUrl,
+      };
 }
 
 class RecipeRequest {
