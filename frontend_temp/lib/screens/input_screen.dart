@@ -298,6 +298,10 @@ class _InputScreenState extends State<InputScreen>
             backgroundColor: AppTheme.backgroundWhite,
             surfaceTintColor: Colors.transparent,
             toolbarHeight: 64,
+            leading: IconButton(
+              icon: const Icon(Icons.arrow_back_ios_rounded, size: 20),
+              onPressed: () => Navigator.pop(context),
+            ),
             title: Row(
               children: [
                 Container(
