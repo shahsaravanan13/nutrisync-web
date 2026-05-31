@@ -4,6 +4,7 @@ import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../theme/app_theme.dart';
 import '../services/user_profile_service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../main.dart';
 import 'edit_profile_screen.dart';
 import 'nutrition_goal_screen.dart';
@@ -49,6 +50,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final reminder = await UserProfileService.getReminderTime();
     final historyCount = await UserProfileService.getHistoryCount();
     final daysActive = await UserProfileService.getDaysActive();
+    final prefs = await SharedPreferences.getInstance();
+    final savedRecipesList = prefs.getStringList('saved_recipes') ?? [];
 
     setState(() {
       _name = profile['name'] ?? 'Your Name';
@@ -60,6 +63,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       _reminderTime = reminder;
       _recipesGenerated = historyCount;
       _daysActive = daysActive;
+      _savedRecipes = savedRecipesList.length;
     });
   }
 

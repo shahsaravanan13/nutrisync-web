@@ -5,6 +5,7 @@ import 'package:speech_to_text/speech_to_text.dart' as stt;
 import '../theme/app_theme.dart';
 import '../models/recipe_model.dart';
 import '../services/api_service.dart';
+import '../services/user_profile_service.dart';
 import 'recipe_detail_screen.dart';
 import 'notifications_screen.dart';
 
@@ -212,6 +213,15 @@ class _InputScreenState extends State<InputScreen>
       );
 
       final response = await _apiService.generateRecipe(request);
+
+      // Save to history to update stats
+      await UserProfileService.addToHistory(
+        recipeName: response.recipeName,
+        calories: response.nutritionFacts.calories.toInt(),
+        protein: response.nutritionFacts.protein.toInt(),
+        carbs: response.nutritionFacts.carbohydrates.toInt(),
+        fat: response.nutritionFacts.fat.toInt(),
+      );
 
       if (mounted) {
         Navigator.of(context).push(

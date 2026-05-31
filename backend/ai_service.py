@@ -1,12 +1,12 @@
-from groq import Groq
 import os
 import json
 import time
 import urllib.parse
 from dotenv import load_dotenv
-from models import RecipeResponse, RecipeRequest, Nutrition, Ingredient as ModelIngredient
+from models import RecipeResponse, RecipeRequest, NutritionFacts, Ingredient as ModelIngredient, RecipeStep
 from typing import List, Dict
-from nutrition_calculator import calculate_nutrition
+from google import genai
+from google.genai import types
 
 # Force override
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -16,8 +16,13 @@ HISTORY_FILE = os.path.join(BASE_DIR, "recipe_history.json")
 
 class GeminiService:
     def __init__(self):
-        self.client = Groq(api_key=os.getenv("GROQ_API_KEY"))
-        self.model_name = os.getenv("MODEL_NAME", "llama-3.3-70b-versatile")
+        # Use GEMINI_API_KEY for the official SDK
+        api_key = os.getenv("GEMINI_API_KEY")
+        if not api_key:
+            raise ValueError("GEMINI_API_KEY is missing from environment variables.")
+        self.client = genai.Client(api_key=api_key)
+        # Use gemini-1.5-flash as the default robust model
+        self.model_name = "gemini-1.5-flash"
 
     def _get_history(self) -> List[str]:
         if os.path.exists(HISTORY_FILE):
@@ -45,31 +50,26 @@ class GeminiService:
 
     def generate_recipe(self, request: RecipeRequest, context_recipes: List[Dict]) -> RecipeResponse:
         ingredients_str = ", ".join(request.ingredients)
-        context_str = json.dumps(context_recipes, indent=2)
         
-        # 1. Calculate precise nutrition values mathematically
-        calc_result = calculate_nutrition(request.ingredients)
-        calculated_totals = calc_result["total"]
-
-        # 2. Get previously generated recipes to avoid duplicates
         history = self._get_history()
         history_str = ", ".join([f'"{name}"' for name in history]) if history else "None"
 
-        prompt = f"""You are a professional chef. Your task is to generate a recipe using the provided ingredients.
+        # Construct highly specific prompt
+        prompt = f"""You are an elite nutritionist and professional chef. Your task is to generate a recipe using the provided ingredients, and ACCURATELY calculate its total nutrition facts based on reliable food databases (like USDA).
 
 USER INGREDIENTS: {ingredients_str}
 DIETARY PREFERENCES: {request.dietary_preferences if request.dietary_preferences else 'None'}
 
-PREVIOUSLY GENERATED RECIPES (DO NOT REPEAT OR DUPICATE THESE DISHES):
+PREVIOUSLY GENERATED RECIPES (DO NOT REPEAT THESE):
 {history_str}
 
 INSTRUCTIONS:
-1. Create a unique, tasty, authentic recipe using the provided ingredients.
-2. The recipe name MUST be different from the previously generated recipes. Do not repeat recipe names or types.
-3. Explain each step in VERY SIMPLE English.
-4. Return ONLY valid JSON, no extra text or markdown codeblocks.
+1. Create a unique, tasty recipe using the provided ingredients. Do not repeat recipe names from history.
+2. Carefully estimate the EXACT gram amount or serving size for every ingredient you use in the recipe.
+3. Calculate the highly accurate TOTAL calories, protein (g), carbohydrates (g), fat (g), and fiber (g) for the entire dish. Do not hallucinate; use standard nutritional knowledge.
+4. Explain each step in very simple English.
 
-Return this EXACT JSON structure:
+Return ONLY valid JSON matching this schema:
 {{
     "recipe_name": "Name of dish",
     "total_time": 25,
@@ -78,106 +78,76 @@ Return this EXACT JSON structure:
     ],
     "steps": [
         {{"step_number": 1, "instruction": "Clear simple instruction"}}
-    ]
+    ],
+    "nutrition_facts": {{
+        "calories": 450,
+        "protein": 30,
+        "carbohydrates": 45,
+        "fat": 15,
+        "fiber": 8
+    }}
 }}
-
-Reference Context:
-{context_str}
 """
 
-        preferred_models = [self.model_name, "llama3-70b-8192", "gemma2-9b-it"]
-        last_error = None
-
-        for model_name in preferred_models:
-            try:
-                response = self.client.chat.completions.create(
-                    model=model_name,
-                    messages=[
-                        {
-                            "role": "system",
-                            "content": "You are a professional chef. You generate unique recipes and return only valid JSON."
-                        },
-                        {"role": "user", "content": prompt}
-                    ],
+        try:
+            # Force JSON response schema via config
+            response = self.client.models.generate_content(
+                model=self.model_name,
+                contents=prompt,
+                config=types.GenerateContentConfig(
                     temperature=0.7,
-                    max_tokens=2048,
+                    response_mime_type="application/json",
+                ),
+            )
+
+            text = response.text
+            recipe_data = json.loads(text)
+
+            recipe_name = recipe_data.get("recipe_name", "Gourmet Dish").strip()
+            if recipe_name in history:
+                recipe_name = f"Special {recipe_name}"
+                recipe_data["recipe_name"] = recipe_name
+
+            self._save_history(recipe_name)
+
+            # Ensure nutrition facts exists
+            n_facts = recipe_data.get("nutrition_facts", {})
+
+            return RecipeResponse(
+                recipe_name=recipe_data["recipe_name"],
+                total_time=recipe_data.get("total_time", 20),
+                ingredients_used=[
+                    ModelIngredient(name=ing.get("name", "Unknown"), quantity=ing.get("quantity", ""))
+                    for ing in recipe_data.get("ingredients_used", [])
+                ],
+                steps=[
+                    RecipeStep(step_number=step.get("step_number", idx+1), instruction=step.get("instruction", ""))
+                    for idx, step in enumerate(recipe_data.get("steps", []))
+                ],
+                nutrition_facts=NutritionFacts(
+                    calories=float(n_facts.get("calories", 0)),
+                    protein=float(n_facts.get("protein", 0)),
+                    carbohydrates=float(n_facts.get("carbohydrates", 0)),
+                    fat=float(n_facts.get("fat", 0)),
+                    fiber=float(n_facts.get("fiber", 0))
                 )
+            )
 
-                text = response.choices[0].message.content
-                if not text:
-                    continue
-
-                json_start = text.find("{")
-                json_end = text.rfind("}") + 1
-                if json_start == -1:
-                    continue
-                recipe_data = json.loads(text[json_start:json_end])
-
-                # Ensure recipe name is unique against history
-                recipe_name = recipe_data.get("recipe_name", "Gourmet Dish").strip()
-                if recipe_name in history:
-                    # Modify name slightly to be unique if the LLM ignored instructions
-                    recipe_name = f"Special {recipe_name}"
-                    recipe_data["recipe_name"] = recipe_name
-
-                # 3. Save the generated recipe name to history
-                self._save_history(recipe_name)
-
-                # 4. Strictly inject the mathematically calculated accurate nutrition facts
-                # Calculate from the EXACT quantities the LLM returned
-                generated_ingredients = []
-                for ing in recipe_data.get("ingredients_used", []):
-                    qty = ing.get("quantity", "")
-                    name = ing.get("name", "")
-                    generated_ingredients.append(f"{qty} {name}".strip())
-                
-                # Recalculate based on generated items
-                exact_calc_result = calculate_nutrition(generated_ingredients)
-                calculated_totals = exact_calc_result["total"]
-
-                recipe_data["nutrition_facts"] = {
-                    "calories": calculated_totals["calories"],
-                    "protein": calculated_totals["protein"],
-                    "carbohydrates": calculated_totals["carbohydrates"],
-                    "fat": calculated_totals["fat"],
-                    "fiber": calculated_totals["fiber"]
-                }
-
-                # Construct and return validated response model
-                return RecipeResponse(
-                    recipe_name=recipe_data["recipe_name"],
-                    total_time=recipe_data.get("total_time", 20),
-                    ingredients_used=[
-                        ModelIngredient(name=ing["name"], quantity=ing["quantity"])
-                        for ing in recipe_data.get("ingredients_used", [])
-                    ],
-                    steps=recipe_data.get("steps", []),
-                    nutrition_facts=Nutrition(**recipe_data["nutrition_facts"])
-                )
-
-            except Exception as e:
-                last_error = e
-                error_msg = str(e).lower()
-                if "429" in error_msg or "rate_limit" in error_msg:
-                    time.sleep(2)
-                continue
-
-        raise last_error if last_error else Exception("Failed to generate recipe.")
+        except Exception as e:
+            raise Exception(f"Failed to generate recipe via Gemini: {str(e)}")
 
     def generate_image_prompt(self, recipe_name: str, ingredients: List[str]) -> str:
         ingredients_str = ", ".join(ingredients)
         prompt = f"Write ONE sentence describing a professional food photo of {recipe_name} with {ingredients_str}. Focus on colors, textures, and gourmet plating."
 
         try:
-            response = self.client.chat.completions.create(
+            response = self.client.models.generate_content(
                 model=self.model_name,
-                messages=[{"role": "user", "content": prompt}],
-                temperature=0.7,
-                max_tokens=100,
+                contents=prompt,
+                config=types.GenerateContentConfig(temperature=0.7),
             )
-            text = response.choices[0].message.content
-            if text:
-                return text.strip()
+            if response.text:
+                return response.text.strip()
         except:
             pass
 
@@ -194,26 +164,32 @@ Reference Context:
         seed = int(time.time()) % 1000
 
         url = f"https://image.pollinations.ai/prompt/{encoded_prompt}?width=1024&height=1024&seed={seed}&model=flux&nologo=true&private=true"
-        print(f"Generated Image URL: {url}")
         return url
 
     def chat(self, user_message: str, history: List[Dict[str, str]] = None) -> str:
-        messages = [
-            {"role": "system", "content": "You are NutriBot, a helpful, encouraging, and expert AI nutritionist and chef. You give concise, actionable advice about healthy eating, meal prep, and nutrition. Keep answers relatively brief (1-3 paragraphs) as this is for a mobile app chat interface. Format your answers clearly without using heavy markdown features like tables, but bullet points are fine."}
-        ]
+        # Build contents from history
+        contents = []
+        
+        system_instruction = "You are NutriBot, a helpful, encouraging, and expert AI nutritionist and chef. You give concise, actionable advice about healthy eating, meal prep, and nutrition. Format your answers clearly with bullet points if helpful, but NO heavy markdown."
+        
+        # In python google-genai, we can use system_instruction in config
         if history:
-            messages.extend(history[-10:]) # keep last 10 messages for context
-            
-        messages.append({"role": "user", "content": user_message})
+            for msg in history[-10:]:
+                role = "user" if msg["role"] == "user" else "model"
+                contents.append(types.Content(role=role, parts=[types.Part.from_text(text=msg["content"])]))
+                
+        contents.append(types.Content(role="user", parts=[types.Part.from_text(text=user_message)]))
 
         try:
-            response = self.client.chat.completions.create(
+            response = self.client.models.generate_content(
                 model=self.model_name,
-                messages=messages,
-                temperature=0.7,
-                max_tokens=512,
+                contents=contents,
+                config=types.GenerateContentConfig(
+                    temperature=0.7,
+                    system_instruction=system_instruction
+                )
             )
-            return response.choices[0].message.content
+            return response.text
         except Exception as e:
             return f"I'm sorry, I encountered an error: {str(e)}"
 
