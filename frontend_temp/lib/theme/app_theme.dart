@@ -237,4 +237,75 @@ class AppTheme {
           elevation: 0,
         ),
       );
+
+  static ThemeData get darkTheme => ThemeData(
+        useMaterial3: true,
+        brightness: Brightness.dark,
+        scaffoldBackgroundColor: const Color(0xFF0F1117),
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: primaryGreen,
+          primary: accentTeal,
+          secondary: accentMint,
+          surface: const Color(0xFF1A1D27),
+          brightness: Brightness.dark,
+        ),
+        appBarTheme: AppBarTheme(
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          scrolledUnderElevation: 0,
+          centerTitle: false,
+          titleTextStyle: GoogleFonts.plusJakartaSans(
+            fontSize: 18,
+            fontWeight: FontWeight.w700,
+            color: accentTeal,
+          ),
+          iconTheme: const IconThemeData(color: Colors.white),
+        ),
+        cardTheme: CardThemeData(
+          elevation: 0,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(radiusLarge),
+          ),
+          color: const Color(0xFF1A1D27),
+        ),
+        elevatedButtonTheme: ElevatedButtonThemeData(
+          style: ElevatedButton.styleFrom(
+            backgroundColor: primaryGreen,
+            foregroundColor: Colors.white,
+            elevation: 0,
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(radiusMedium),
+            ),
+          ),
+        ),
+        inputDecorationTheme: InputDecorationTheme(
+          filled: true,
+          fillColor: const Color(0xFF1E2130),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(radiusMedium),
+            borderSide: BorderSide.none,
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(radiusMedium),
+            borderSide: BorderSide.none,
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(radiusMedium),
+            borderSide: const BorderSide(color: accentTeal, width: 1.5),
+          ),
+          hintStyle: GoogleFonts.plusJakartaSans(
+            fontSize: 14,
+            color: const Color(0xFF6B7280),
+          ),
+        ),
+        bottomNavigationBarTheme: const BottomNavigationBarThemeData(
+          backgroundColor: Color(0xFF1A1D27),
+          selectedItemColor: accentTeal,
+          unselectedItemColor: Color(0xFF6B7280),
+          type: BottomNavigationBarType.fixed,
+          elevation: 0,
+        ),
+      );
 }
+
