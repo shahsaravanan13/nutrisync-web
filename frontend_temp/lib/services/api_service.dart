@@ -71,6 +71,36 @@ class ApiService {
       );
     }
   }
+
+  /// Send a message to the AI Chatbot
+  Future<String> sendChatMessage(String message, List<Map<String, String>> history) async {
+    try {
+      final uri = Uri.parse('${ApiConfig.baseUrl}${ApiConfig.chatBot}');
+      
+      final requestBody = {
+        'message': message,
+        'history': history,
+      };
+
+      final response = await http
+          .post(
+            uri,
+            headers: ApiConfig.headers,
+            body: jsonEncode(requestBody),
+          )
+          .timeout(const Duration(minutes: 1));
+
+      if (response.statusCode == 200) {
+        final body = response.body.trim();
+        final jsonData = jsonDecode(body);
+        return jsonData['response'] as String;
+      } else {
+        throw ApiException(message: 'Chat failed (${response.statusCode})', statusCode: response.statusCode);
+      }
+    } catch (e) {
+      throw ApiException(message: 'Network error: $e', statusCode: 0);
+    }
+  }
 }
 
 class ApiException implements Exception {

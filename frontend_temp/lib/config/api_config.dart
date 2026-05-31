@@ -18,6 +18,7 @@ class ApiConfig {
 
   // API Endpoints
   static const String generateRecipe = '/api/v1/generate-recipe';
+  static const String chatBot = '/api/v1/chat';
   static const String healthCheck = '/health';
 
   // Standard JSON headers (no ngrok bypass needed)

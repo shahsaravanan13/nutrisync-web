@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../theme/app_theme.dart';
-
+import '../models/recipe_model.dart';
+import 'recipe_detail_screen.dart';
+import 'search_screen.dart';
+import 'recommended_recipes_screen.dart';
+import 'chat_screen.dart';
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
@@ -45,26 +49,28 @@ class _HomeScreenState extends State<HomeScreen> {
       'cal': '380 kcal',
       'time': '15 min',
       'color': const Color(0xFF4A7C59),
-      'image': 'assets/images/noodle_bowl.png',
+      'image': 'https://images.unsplash.com/photo-1569718212165-3a8278d5f624?q=80&w=600&auto=format&fit=crop',
     },
     {
       'name': 'Lentil Curry Soup',
       'cal': '290 kcal',
       'time': '25 min',
       'color': const Color(0xFFB8860B),
-      'image': 'assets/images/curry_soup.png',
+      'image': 'https://images.unsplash.com/photo-1548943487-a2e4f43b4859?q=80&w=600&auto=format&fit=crop',
     },
     {
       'name': 'Grilled Chicken Wrap',
       'cal': '420 kcal',
       'time': '12 min',
       'color': const Color(0xFF8B4513),
+      'image': 'https://images.unsplash.com/photo-1626700051175-6818013e1d4f?q=80&w=600&auto=format&fit=crop',
     },
     {
       'name': 'Veggie Stir Fry',
       'cal': '310 kcal',
       'time': '18 min',
       'color': const Color(0xFF2E8B57),
+      'image': 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?q=80&w=600&auto=format&fit=crop',
     },
   ];
 
@@ -79,6 +85,14 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppTheme.backgroundWhite,
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () {
+          Navigator.push(context, MaterialPageRoute(builder: (_) => const ChatScreen()));
+        },
+        backgroundColor: AppTheme.primaryGreen,
+        icon: const Icon(Icons.chat_bubble_outline_rounded, color: Colors.white),
+        label: const Text('NutriBot', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+      ).animate().slideY(begin: 1.5, end: 0, delay: 800.ms, duration: 500.ms),
       body: CustomScrollView(
         controller: _scrollController,
         physics: const BouncingScrollPhysics(),
@@ -227,6 +241,10 @@ class _HomeScreenState extends State<HomeScreen> {
         border: Border.all(color: AppTheme.dividerColor.withValues(alpha: 0.5)),
       ),
       child: TextField(
+        readOnly: true,
+        onTap: () {
+          Navigator.push(context, MaterialPageRoute(builder: (_) => const SearchScreen()));
+        },
         decoration: InputDecoration(
           hintText: 'Search recipes, ingredients, or nutrients...',
           hintStyle: AppTheme.bodyMedium.copyWith(color: AppTheme.textTertiary),
@@ -352,19 +370,39 @@ class _HomeScreenState extends State<HomeScreen> {
                 const SizedBox(height: 20),
                 Row(
                   children: [
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 14),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(30),
-                        boxShadow: AppTheme.softShadow,
-                      ),
-                      child: Text(
-                        'Start Cooking',
-                        style: AppTheme.labelLarge.copyWith(
-                          color: AppTheme.primaryGreen,
-                          fontSize: 14,
-                          fontWeight: FontWeight.w800,
+                    GestureDetector(
+                      onTap: () {
+                        // Open mock detail for featured recipe
+                        final mockRecipe = RecipeResponse(
+                          recipeName: recipe['name'].toString().replaceAll('\n', ' '),
+                          totalTime: 15,
+                          ingredientsUsed: [
+                            Ingredient(name: 'Quinoa', quantity: '1 cup'),
+                            Ingredient(name: 'Olive Oil', quantity: '1 tbsp'),
+                          ],
+                          steps: [
+                            RecipeStep(stepNumber: 1, instruction: 'Mix everything together.'),
+                            RecipeStep(stepNumber: 2, instruction: 'Enjoy!'),
+                          ],
+                          nutritionFacts: NutritionFacts(calories: 320, protein: 12, carbohydrates: 45, fat: 8, fiber: 6),
+                          imageUrl: 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?q=80&w=600&auto=format&fit=crop',
+                        );
+                        Navigator.push(context, MaterialPageRoute(builder: (_) => RecipeDetailScreen(recipe: mockRecipe)));
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 14),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(30),
+                          boxShadow: AppTheme.softShadow,
+                        ),
+                        child: Text(
+                          'Start Cooking',
+                          style: AppTheme.labelLarge.copyWith(
+                            color: AppTheme.primaryGreen,
+                            fontSize: 14,
+                            fontWeight: FontWeight.w800,
+                          ),
                         ),
                       ),
                     ),
@@ -522,7 +560,9 @@ class _HomeScreenState extends State<HomeScreen> {
               ],
             ),
             TextButton(
-              onPressed: () {},
+              onPressed: () {
+                Navigator.push(context, MaterialPageRoute(builder: (_) => const RecommendedRecipesScreen()));
+              },
               child: Text(
                 'View All',
                 style: AppTheme.labelLarge.copyWith(
@@ -563,7 +603,7 @@ class _HomeScreenState extends State<HomeScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Image placeholder with gradient
+          // Image placeholder with gradient or actual image
           Container(
             height: 110,
             decoration: BoxDecoration(
@@ -577,12 +617,20 @@ class _HomeScreenState extends State<HomeScreen> {
                 ],
               ),
             ),
-            child: Center(
-              child: Icon(
-                Icons.restaurant_rounded,
-                size: 40,
-                color: Colors.white.withValues(alpha: 0.7),
-              ),
+            child: ClipRRect(
+              borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+              child: recipe['image'] != null
+                  ? Image.network(
+                      recipe['image'] as String,
+                      fit: BoxFit.cover,
+                      width: double.infinity,
+                      errorBuilder: (c, e, s) => Center(
+                        child: Icon(Icons.restaurant_rounded, size: 40, color: Colors.white.withValues(alpha: 0.7)),
+                      ),
+                    )
+                  : Center(
+                      child: Icon(Icons.restaurant_rounded, size: 40, color: Colors.white.withValues(alpha: 0.7)),
+                    ),
             ),
           ),
           Padding(
