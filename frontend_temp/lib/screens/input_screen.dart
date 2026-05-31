@@ -6,6 +6,7 @@ import '../theme/app_theme.dart';
 import '../models/recipe_model.dart';
 import '../services/api_service.dart';
 import 'recipe_detail_screen.dart';
+import 'notifications_screen.dart';
 
 class InputScreen extends StatefulWidget {
   const InputScreen({super.key});
@@ -335,7 +336,9 @@ class _InputScreenState extends State<InputScreen>
                 child: IconButton(
                   icon: const Icon(Icons.notifications_none_rounded, size: 22),
                   color: AppTheme.textPrimary,
-                  onPressed: () {},
+                  onPressed: () {
+                    Navigator.push(context, MaterialPageRoute(builder: (_) => const NotificationsScreen()));
+                  },
                 ),
               ),
             ],

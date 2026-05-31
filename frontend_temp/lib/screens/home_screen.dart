@@ -6,6 +6,8 @@ import 'recipe_detail_screen.dart';
 import 'search_screen.dart';
 import 'recommended_recipes_screen.dart';
 import 'chat_screen.dart';
+import 'notifications_screen.dart';
+
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
@@ -140,7 +142,9 @@ class _HomeScreenState extends State<HomeScreen> {
                 child: IconButton(
                   icon: const Icon(Icons.notifications_none_rounded, size: 22),
                   color: AppTheme.textPrimary,
-                  onPressed: () {},
+                  onPressed: () {
+                    Navigator.push(context, MaterialPageRoute(builder: (_) => const NotificationsScreen()));
+                  },
                 ),
               ),
             ],

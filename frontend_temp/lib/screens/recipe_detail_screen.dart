@@ -1,6 +1,8 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:shimmer/shimmer.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../theme/app_theme.dart';
 import '../models/recipe_model.dart';
 
@@ -13,6 +15,71 @@ class RecipeDetailScreen extends StatefulWidget {
 }
 
 class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
+  bool _isSaved = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _checkIfSaved();
+  }
+
+  Future<void> _checkIfSaved() async {
+    final prefs = await SharedPreferences.getInstance();
+    final saved = prefs.getStringList('saved_recipes') ?? [];
+    
+    // Check if a recipe with this exact name already exists
+    final exists = saved.any((s) {
+      try {
+        final decoded = jsonDecode(s);
+        return decoded['recipe_name'] == widget.recipe.recipeName;
+      } catch (_) {
+        return false;
+      }
+    });
+
+    if (mounted) {
+      setState(() {
+        _isSaved = exists;
+      });
+    }
+  }
+
+  Future<void> _toggleSave() async {
+    final prefs = await SharedPreferences.getInstance();
+    final saved = prefs.getStringList('saved_recipes') ?? [];
+    
+    if (_isSaved) {
+      // Remove it
+      saved.removeWhere((s) {
+        try {
+          final decoded = jsonDecode(s);
+          return decoded['recipe_name'] == widget.recipe.recipeName;
+        } catch (_) {
+          return false;
+        }
+      });
+    } else {
+      // Add it
+      saved.insert(0, jsonEncode(widget.recipe.toJson()));
+    }
+    
+    await prefs.setStringList('saved_recipes', saved);
+    
+    if (mounted) {
+      setState(() {
+        _isSaved = !_isSaved;
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(_isSaved ? 'Recipe saved!' : 'Recipe removed from saved.', style: const TextStyle(color: Colors.white)),
+          backgroundColor: AppTheme.primaryGreenDark,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        ),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final recipe = widget.recipe;
@@ -49,9 +116,13 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
                     color: Colors.black.withOpacity(0.3),
                     shape: BoxShape.circle,
                   ),
-                  child: const Icon(Icons.bookmark_border_rounded, color: Colors.white, size: 20),
+                  child: Icon(
+                    _isSaved ? Icons.bookmark_rounded : Icons.bookmark_border_rounded, 
+                    color: _isSaved ? AppTheme.warningAmber : Colors.white, 
+                    size: 20
+                  ),
                 ),
-                onPressed: () {},
+                onPressed: _toggleSave,
               ),
             ],
             flexibleSpace: FlexibleSpaceBar(
