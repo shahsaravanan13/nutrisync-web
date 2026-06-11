@@ -21,8 +21,8 @@ class GeminiService:
         if not api_key:
             raise ValueError("GEMINI_API_KEY is missing from environment variables.")
         self.client = genai.Client(api_key=api_key)
-        # Use gemini-2.5-flash as the default robust model
-        self.model_name = "gemini-2.5-flash"
+        # Use gemini-1.5-flash as the default robust model
+        self.model_name = os.getenv("MODEL_NAME", "gemini-1.5-flash")
 
     def _get_history(self) -> List[str]:
         if os.path.exists(HISTORY_FILE):
@@ -191,6 +191,9 @@ Return ONLY valid JSON matching this schema:
             )
             return response.text
         except Exception as e:
-            return f"I'm sorry, I encountered an error: {str(e)}"
+            error_str = str(e)
+            if "503" in error_str or "UNAVAILABLE" in error_str:
+                return "I'm sorry, my servers are currently experiencing high demand. Please wait a moment and try again!"
+            return "I'm sorry, I encountered a temporary network issue. Please try again!"
 
 gemini_service = GeminiService()

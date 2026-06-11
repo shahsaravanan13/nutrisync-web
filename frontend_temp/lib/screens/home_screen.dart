@@ -697,7 +697,7 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ],
       ),
-    )
+    ))
         .animate()
         .fadeIn(delay: (100 * index).ms, duration: 400.ms)
         .scale(

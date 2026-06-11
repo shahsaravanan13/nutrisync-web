@@ -11,6 +11,7 @@ import 'nutrition_goal_screen.dart';
 import 'recipe_history_screen.dart';
 import 'help_support_screen.dart';
 import 'privacy_policy_screen.dart';
+import 'login_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -593,7 +594,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
             child: const Text('Cancel'),
           ),
           TextButton(
-            onPressed: () => Navigator.pop(ctx),
+            onPressed: () async {
+              // Clear auth state
+              final prefs = await SharedPreferences.getInstance();
+              await prefs.setBool('isLoggedIn', false);
+
+              if (!ctx.mounted) return;
+              Navigator.pop(ctx); // close dialog
+              
+              Navigator.of(context).pushAndRemoveUntil(
+                MaterialPageRoute(builder: (_) => const LoginScreen()),
+                (route) => false,
+              );
+            },
             child: Text('Log Out',
                 style: TextStyle(color: AppTheme.errorRed, fontWeight: FontWeight.w700)),
           ),
