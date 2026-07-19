@@ -97731,7 +97731,7 @@ yk(a){return this.a3l(a)},
 a3l(a){var s=0,r=A.C(t.ud),q,p=2,o=[],n,m,l,k,j,i,h,g,f,e,d,c
 var $async$yk=A.D(function(a0,a1){if(a0===1){o.push(a1)
 s=p}for(;;)switch(s){case 0:p=4
-n=A.h_("https://nutrisync-project-production.up.railway.app/api/v1/generate-recipe",0,null)
+n=A.h_("http://192.168.31.95:8000/api/v1/generate-recipe",0,null)
 f=t.N
 f=A.Y(["Content-Type","application/json"],f,f)
 s=7
@@ -97770,7 +97770,7 @@ yG(a,b){return this.a4e(a,b)},
 a4e(a,b){var s=0,r=A.C(t.N),q,p=2,o=[],n,m,l,k,j,i,h,g,f
 var $async$yG=A.D(function(c,d){if(c===1){o.push(d)
 s=p}for(;;)switch(s){case 0:p=4
-n=A.h_("https://nutrisync-project-production.up.railway.app/api/v1/chat",0,null)
+n=A.h_("http://192.168.31.95:8000/api/v1/chat",0,null)
 h=t.N
 m=A.Y(["message",a,"history",b],h,t.K)
 h=A.Y(["Content-Type","application/json"],h,h)
