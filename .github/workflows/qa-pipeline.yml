@@ -106,7 +106,9 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: selenium-result
-          path: testing/selenium_result.txt
+          path: |
+            testing/selenium_result.txt
+            testing/selenium_cases.json
           retention-days: 7
 
   mobile-test:
@@ -151,6 +153,7 @@ jobs:
           name: mobile-artifacts
           path: |
             testing/appium_result.txt
+            testing/appium_cases.json
             frontend_temp/build/app/outputs/flutter-apk/*.apk
           retention-days: 7
 
@@ -190,6 +193,8 @@ jobs:
           mkdir -p frontend_temp/build/app/outputs/flutter-apk
           [ -f testing-mobile/testing/appium_result.txt ] && cp testing-mobile/testing/appium_result.txt testing/appium_result.txt || true
           [ -f testing-mobile/appium_result.txt ] && cp testing-mobile/appium_result.txt testing/appium_result.txt || true
+          [ -f testing-mobile/testing/appium_cases.json ] && cp testing-mobile/testing/appium_cases.json testing/appium_cases.json || true
+          [ -f testing-mobile/appium_cases.json ] && cp testing-mobile/appium_cases.json testing/appium_cases.json || true
           find testing-mobile -name "*.apk" -exec cp {} frontend_temp/build/app/outputs/flutter-apk/ \; 2>/dev/null || true
 
       - name: Ensure all result files exist
@@ -206,6 +211,9 @@ jobs:
 
       - name: Install openpyxl
         run: pip install openpyxl
+
+      - name: Run Security Audit Tests
+        run: python3 testing/security_test.py
 
       - name: Generate Excel Report
         run: python3 testing/generate_excel_report.py

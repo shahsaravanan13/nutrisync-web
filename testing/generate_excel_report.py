@@ -24,6 +24,15 @@ def read_result_file(filepath):
                     results[key] = value
     return results
 
+def load_cases(filepath):
+    if os.path.exists(filepath):
+        try:
+            with open(filepath, "r") as f:
+                return json.load(f)
+        except:
+            pass
+    return []
+
 def parse_trivy_json(filepath):
     summary = {"CRITICAL": 0, "HIGH": 0, "MEDIUM": 0, "LOW": 0}
     vulnerabilities = []
@@ -77,6 +86,11 @@ def generate_excel():
     
     # 3. Gather Vulnerability Scans
     trivy_summary, trivy_list = parse_trivy_json("testing/trivy-results.json")
+    
+    # 4. Load Extensive Data-Driven Test Cases
+    selenium_cases = load_cases("testing/selenium_cases.json")
+    appium_cases = load_cases("testing/appium_cases.json")
+    security_cases = load_cases("testing/security_cases.json")
     
     # 4. Create Workbook
     wb = openpyxl.Workbook()
@@ -272,6 +286,58 @@ def generate_excel():
             col_letter = openpyxl.utils.get_column_letter(col[0].column)
             ws2.column_dimensions[col_letter].width = min(max(max_len + 3, 12), 40) # cap width at 40
             
+    # Helper for building case sheets
+    def build_case_sheet(wb, title, cases, headers, key_mapping):
+        if not cases: return
+        ws = wb.create_sheet(title=title)
+        ws.views.sheetView[0].showGridLines = True
+        
+        for col_idx, h in enumerate(headers, start=1):
+            cell = ws.cell(row=1, column=col_idx, value=h)
+            cell.font = header_font
+            cell.fill = navy_fill
+            cell.border = thin_border
+            
+        for row_idx, case in enumerate(cases, start=2):
+            for col_idx, key in enumerate(key_mapping, start=1):
+                val = case.get(key, "N/A")
+                c = ws.cell(row=row_idx, column=col_idx, value=val)
+                c.font = regular_font
+                c.border = thin_border
+                
+                # Apply color based on status/severity
+                if key == "status":
+                    c.font = bold_font
+                    if val == "PASS": c.fill = pass_fill
+                    elif val == "FAIL": c.fill = fail_fill
+                if key == "severity":
+                    c.font = bold_font
+                    if val in ("CRITICAL", "HIGH", "MEDIUM"): c.fill = fail_fill
+                    
+        # Autofit columns
+        for col in ws.columns:
+            max_len = 0
+            for cell in col:
+                val_str = str(cell.value or '')
+                if len(val_str) > max_len: max_len = len(val_str)
+            col_letter = openpyxl.utils.get_column_letter(col[0].column)
+            ws.column_dimensions[col_letter].width = min(max(max_len + 3, 12), 70)
+
+    # Sheet 3: Selenium Tests
+    build_case_sheet(wb, "Selenium Tests", selenium_cases, 
+                     ["Test ID", "Description", "Status", "Duration", "Message"],
+                     ["test_id", "description", "status", "duration", "message"])
+                     
+    # Sheet 4: Appium Tests
+    build_case_sheet(wb, "Appium Tests", appium_cases,
+                     ["Test ID", "Description", "Status", "Duration", "Message"],
+                     ["test_id", "description", "status", "duration", "message"])
+                     
+    # Sheet 5: Security Audits
+    build_case_sheet(wb, "Security Audits", security_cases,
+                     ["Test ID", "Description", "Status", "Severity", "Message"],
+                     ["test_id", "description", "status", "severity", "message"])
+
     # Save Workbook
     output_path = "testing/build_report.xlsx"
     wb.save(output_path)
