@@ -2,509 +2,165 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
-  <title>NutriSync – AI-Powered Nutrition</title>
-  <meta name="description" content="NutriSync: Generate personalized AI recipes from your pantry ingredients." />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@1,600&display=swap" rel="stylesheet" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NutriSync – Web Application</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
 
-<!-- ═══════════════════ SPLASH ═══════════════════ -->
-<div id="screen-splash" class="screen active">
-  <div class="splash-bg">
-    <div class="splash-orb splash-orb-1"></div>
-    <div class="splash-orb splash-orb-2"></div>
-    <div class="splash-orb splash-orb-3"></div>
-    <div class="splash-center">
-      <div class="splash-icon">
-        <span style="font-size:52px">🍽</span>
-      </div>
-      <h1 class="splash-title">NutriSync</h1>
-      <p class="splash-sub">AI-Powered Nutrition</p>
-      <div class="splash-loader"><div class="splash-loader-bar"></div></div>
-    </div>
-    <p class="splash-tagline">Sync your ingredients. Discover recipes.</p>
-  </div>
-</div>
-
-<!-- ═══════════════════ LOGIN ════════════════════ -->
-<div id="screen-login" class="screen">
-  <div class="auth-bg"></div>
-  <div class="auth-card">
-    <div class="auth-logo">🥗</div>
-    <h2>Welcome Back</h2>
-    <p class="auth-sub">Log in to your NutriSync account</p>
-    <div class="form-group">
-      <label>Email Address</label>
-      <div class="input-wrap">
-        <span class="input-icon">✉️</span>
-        <input id="login-email" type="email" placeholder="you@example.com" />
-      </div>
-    </div>
-    <div class="form-group">
-      <label>Password</label>
-      <div class="input-wrap">
-        <span class="input-icon">🔒</span>
-        <input id="login-password" type="password" placeholder="••••••••" />
-        <button class="eye-btn" onclick="togglePwd('login-password',this)">👁</button>
-      </div>
-    </div>
-    <div class="forgot"><a href="#">Forgot Password?</a></div>
-    <button class="btn-primary btn-full" id="login-btn" onclick="handleLogin()">
-      <span id="login-btn-text">Log In</span>
-      <div id="login-spinner" class="btn-spinner hidden"></div>
-    </button>
-    <p class="auth-link">Don't have an account? <a onclick="showScreen('signup')">Sign Up</a></p>
-  </div>
-</div>
-
-<!-- ═══════════════════ SIGNUP ═══════════════════ -->
-<div id="screen-signup" class="screen">
-  <div class="auth-bg"></div>
-  <div class="auth-card">
-    <button class="back-text-btn" onclick="showScreen('login')">← Back</button>
-    <div class="auth-logo">🌱</div>
-    <h2>Create Account</h2>
-    <p class="auth-sub">Join NutriSync today</p>
-    <div class="form-group">
-      <label>Full Name</label>
-      <div class="input-wrap">
-        <span class="input-icon">👤</span>
-        <input id="signup-name" type="text" placeholder="Your name" />
-      </div>
-    </div>
-    <div class="form-group">
-      <label>Email Address</label>
-      <div class="input-wrap">
-        <span class="input-icon">✉️</span>
-        <input id="signup-email" type="email" placeholder="you@example.com" />
-      </div>
-    </div>
-    <div class="form-group">
-      <label>Password</label>
-      <div class="input-wrap">
-        <span class="input-icon">🔒</span>
-        <input id="signup-password" type="password" placeholder="••••••••" />
-        <button class="eye-btn" onclick="togglePwd('signup-password',this)">👁</button>
-      </div>
-    </div>
-    <button class="btn-primary btn-full" onclick="handleSignup()">Create Account</button>
-    <p class="auth-link">Have an account? <a onclick="showScreen('login')">Log In</a></p>
-  </div>
-</div>
-
-<!-- ═══════════════════ APP SHELL ════════════════ -->
-<div id="screen-app" class="screen">
-  <!-- Pages -->
-  <div class="pages-wrap" id="pages-wrap">
-
-    <!-- HOME -->
-    <div id="page-home" class="page active">
-      <div class="topbar">
-        <div class="brand"><div class="brand-icon">🍽</div><span class="brand-name">NutriSync</span></div>
-        <button class="icon-btn" onclick="openModal('notifications')">🔔</button>
-      </div>
-      <div class="page-scroll">
-        <div class="greeting">
-          <h1 id="greeting-h1">Good Morning,</h1>
-          <h1>Chef! <span style="font-size:26px">👋</span></h1>
-          <p class="greeting-sub">Ready to create something delicious? Your personalised nutrition insights await.</p>
+  <!-- Auth Screens -->
+  <div id="view-login" class="view auth-view active">
+    <div class="auth-card">
+      <h2>Welcome Back</h2>
+      <p class="sub">Log in to your NutriSync account</p>
+      
+      <div id="login-error" class="hidden" style="color: red; margin-bottom: 10px; font-size: 14px; text-align: center;"></div>
+      
+      <div class="form-group">
+        <label>Username</label>
+        <div class="input-wrap">
+          <span class="input-icon">👤</span>
+          <input id="login-username" type="text" placeholder="johndoe" />
         </div>
-
-        <div class="search-row" onclick="openModal('search')">
-          <span>🔍</span>
-          <span class="search-ph">Search recipes, ingredients...</span>
+      </div>
+      <div class="form-group">
+        <label>Password</label>
+        <div class="input-wrap">
+          <span class="input-icon">🔒</span>
+          <input id="login-password" type="password" placeholder="••••••••" />
         </div>
+      </div>
+      <button class="btn-primary" onclick="handleLogin()" id="login-btn">
+        <span id="login-text">Log In</span>
+        <div id="login-spinner" class="spinner hidden"></div>
+      </button>
+      <p class="auth-link">Don't have an account? <a onclick="showView('register')">Sign Up</a></p>
+    </div>
+  </div>
 
-        <!-- Featured -->
-        <div class="featured-card">
-          <div class="featured-tags">
-            <span class="chip chip-white">🌿 SEASONAL</span>
-            <span class="chip chip-amber">⏱ 15 MIN</span>
+  <div id="view-register" class="view auth-view">
+    <div class="auth-card">
+      <h2>Create Account</h2>
+      <p class="sub">Join NutriSync today</p>
+
+      <div id="register-error" class="hidden" style="color: red; margin-bottom: 10px; font-size: 14px; text-align: center;"></div>
+
+      <div class="form-group">
+        <label>Username</label>
+        <div class="input-wrap">
+          <span class="input-icon">👤</span>
+          <input id="reg-username" type="text" placeholder="johndoe" />
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Email Address</label>
+        <div class="input-wrap">
+          <span class="input-icon">✉️</span>
+          <input id="reg-email" type="email" placeholder="you@example.com" />
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Password</label>
+        <div class="input-wrap">
+          <span class="input-icon">🔒</span>
+          <input id="reg-password" type="password" placeholder="••••••••" />
+        </div>
+      </div>
+      <button class="btn-primary" onclick="handleRegister()" id="reg-btn">
+        <span id="reg-text">Create Account</span>
+        <div id="reg-spinner" class="spinner hidden"></div>
+      </button>
+      <p class="auth-link">Have an account? <a onclick="showView('login')">Log In</a></p>
+    </div>
+  </div>
+
+  <!-- Main App Shell (Requires Auth) -->
+  <div id="app-shell" class="hidden" style="flex:1; display:flex; flex-direction:column;">
+    <!-- Desktop Navbar -->
+    <nav class="navbar">
+      <div class="nav-brand" onclick="showView('dashboard')">
+        <span class="icon">🥗</span> NutriSync
+      </div>
+      <div class="nav-links">
+        <a class="nav-link" onclick="showView('dashboard')">Dashboard</a>
+        <a class="nav-link" onclick="showView('recipes')">Recipes</a>
+        <a class="nav-link" onclick="showView('ingredients')">Ingredients</a>
+      </div>
+      <div class="nav-profile" onclick="showView('profile')">
+        <img id="nav-avatar" src="https://ui-avatars.com/api/?name=User" class="nav-profile-img" />
+        <span id="nav-username" class="nav-profile-name">Loading...</span>
+      </div>
+    </nav>
+
+    <!-- Views Container -->
+    <div class="container">
+      
+      <!-- Dashboard View -->
+      <div id="view-dashboard" class="view">
+        <div class="page-header">
+          <h1 class="page-title">Welcome back!</h1>
+          <p class="page-subtitle">Here are some recommended recipes for you today.</p>
+        </div>
+        <div id="dashboard-recipes" class="grid">
+          <!-- Populated via JS -->
+        </div>
+      </div>
+
+      <!-- Recipes Search View -->
+      <div id="view-recipes" class="view">
+        <div class="page-header">
+          <h1 class="page-title">Recipe Database</h1>
+          <p class="page-subtitle">Search over 100+ delicious recipes.</p>
+        </div>
+        <div class="search-container">
+          <div class="search-box">
+            <span class="search-icon">🔍</span>
+            <input type="text" id="recipe-search" placeholder="Search recipes by name..." onkeyup="handleRecipeSearch()" />
           </div>
-          <h2 class="featured-title">Emerald Garden<br>Buddha Bowl</h2>
-          <p class="featured-desc">Rich in magnesium &amp; antioxidants. Perfect for your daily goals.</p>
-          <div class="featured-actions">
-            <button class="btn-white-sm" onclick="openFeaturedRecipe()">Start Cooking →</button>
-            <button class="btn-glass">🔖</button>
-          </div>
+          <button class="filter-btn">Filters</button>
         </div>
+        <div id="recipes-grid" class="grid"></div>
+        <div id="recipes-spinner" class="big-spinner hidden"></div>
+      </div>
 
-        <!-- Stats row -->
-        <div class="stats-row">
-          <div class="mini-stat"><span class="ms-icon">🔥</span><span class="ms-val">1840</span><span class="ms-lbl">kcal today</span></div>
-          <div class="mini-stat"><span class="ms-icon">💧</span><span class="ms-val">6</span><span class="ms-lbl">glasses</span></div>
-          <div class="mini-stat"><span class="ms-icon">🥗</span><span class="ms-val">3</span><span class="ms-lbl">meals</span></div>
+      <!-- Ingredients View -->
+      <div id="view-ingredients" class="view">
+        <div class="page-header">
+          <h1 class="page-title">Ingredients</h1>
+          <p class="page-subtitle">Explore our massive ingredient database.</p>
         </div>
-
-        <!-- Daily Balance -->
-        <div class="card">
-          <div class="card-header"><h3>Daily Balance</h3></div>
-          <div class="prog-item"><div class="prog-top"><span>Proteins</span><span style="color:#2D6A4F;font-weight:700">64%</span></div><div class="prog-bar"><div class="prog-fill" style="width:64%;background:#2D6A4F"></div></div></div>
-          <div class="prog-item"><div class="prog-top"><span>Fiber</span><span style="color:#52B788;font-weight:700">82%</span></div><div class="prog-bar"><div class="prog-fill" style="width:82%;background:#52B788"></div></div></div>
-          <div class="prog-item"><div class="prog-top"><span>Carbs</span><span style="color:#F59E0B;font-weight:700">45%</span></div><div class="prog-bar"><div class="prog-fill" style="width:45%;background:#F59E0B"></div></div></div>
-          <div class="prog-item"><div class="prog-top"><span>Fat</span><span style="color:#EF4444;font-weight:700">38%</span></div><div class="prog-bar"><div class="prog-fill" style="width:38%;background:#EF4444"></div></div></div>
-        </div>
-
-        <!-- Mood chips -->
-        <div class="card">
-          <div class="card-header"><h3>Explore by Mood</h3></div>
-          <div class="mood-row">
-            <div class="mood-chip">⚡ Energising</div>
-            <div class="mood-chip">🌿 Calm</div>
-            <div class="mood-chip">🧠 Focus</div>
-            <div class="mood-chip">🔥 Anti-Inflam</div>
-            <div class="mood-chip">💪 High Protein</div>
-            <div class="mood-chip">🌱 Low Carb</div>
+        <div class="search-container">
+          <div class="search-box">
+            <span class="search-icon">🔍</span>
+            <input type="text" id="ingredient-search" placeholder="Search ingredients..." onkeyup="handleIngredientSearch()" />
           </div>
         </div>
-
-        <!-- Recommended -->
-        <div class="sec-header">
-          <div><h3 class="sec-title">Recommended for you</h3><p class="sec-sub">Based on your metabolic profile</p></div>
-          <button class="view-all-btn" onclick="openModal('recommended')">View All</button>
-        </div>
-        <div class="recipe-grid" id="home-recipe-grid"></div>
-
-        <div style="height:110px"></div>
+        <div id="ingredients-grid" class="grid" style="grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));"></div>
+        <div id="ingredients-spinner" class="big-spinner hidden"></div>
       </div>
-      <!-- FAB -->
-      <button class="fab" onclick="switchPage('chat')">💬 NutriBot</button>
-    </div>
 
-    <!-- INPUT -->
-    <div id="page-input" class="page">
-      <div class="topbar">
-        <div class="brand"><div class="brand-icon gradient-icon">🍽</div><span class="brand-name">NutriSync</span></div>
-        <button class="icon-btn" onclick="openModal('notifications')">🔔</button>
-      </div>
-      <div class="page-scroll">
-        <h1 class="page-h1">Tell us what's in<br>your <em class="italic-accent">pantry.</em></h1>
-        <p class="page-sub">Type your ingredients and let AI craft a perfect recipe for you.</p>
-
-        <!-- Mic card -->
-        <div class="mic-card" id="mic-card">
-          <div class="mic-btn-wrap">
-            <div class="mic-ring" id="mic-ring"></div>
-            <button class="mic-btn" id="mic-btn" onclick="toggleMic()">🎤</button>
+      <!-- Profile View -->
+      <div id="view-profile" class="view">
+        <div class="profile-wrapper">
+          <div class="profile-header">
+            <div class="profile-avatar-wrap">
+              <img id="profile-avatar" src="" class="profile-avatar" />
+              <button class="upload-btn" onclick="document.getElementById('avatar-upload').click()">📷</button>
+              <input type="file" id="avatar-upload" class="hidden" accept="image/*" onchange="handleAvatarUpload(event)" />
+            </div>
+            <div class="profile-info">
+              <h3 id="profile-name"></h3>
+              <p id="profile-email"></p>
+              <p id="profile-joined"></p>
+            </div>
           </div>
-          <p class="mic-label" id="mic-label">Tap to Speak</p>
-          <p class="mic-hint" id="mic-hint">Say your ingredients aloud</p>
-        </div>
-
-        <!-- Manual entry -->
-        <div class="card" style="margin-top:20px">
-          <div class="card-header"><h3>Manual Entry</h3></div>
-          <div class="input-wrap" style="margin-bottom:12px">
-            <textarea id="ingredient-input" rows="2" placeholder="e.g. 2 chicken breasts, 1 cup rice, garlic..."></textarea>
-          </div>
-          <button class="btn-add" onclick="addIngredient()">
-            <span class="add-circle">+</span> Add Ingredient
-          </button>
-        </div>
-
-        <!-- Ingredient list -->
-        <div id="ing-section" style="display:none;margin-top:20px">
-          <div class="ing-header">
-            <h3 class="sec-title" style="margin:0">Your Ingredients</h3>
-            <span class="badge" id="ing-badge">0 items</span>
-          </div>
-          <div id="ing-list"></div>
-          <button class="btn-primary btn-full gen-btn" id="gen-btn" onclick="generateRecipe()">
-            <span id="gen-text">✨ Generate AI Recipe</span>
-            <div id="gen-spinner" class="btn-spinner hidden"></div>
-          </button>
-        </div>
-
-        <div style="height:120px"></div>
-      </div>
-    </div>
-
-    <!-- SAVED -->
-    <div id="page-saved" class="page">
-      <div class="topbar">
-        <div class="brand"><div class="brand-icon">🍽</div><span class="brand-name">NutriSync</span></div>
-        <button class="icon-btn" onclick="renderSaved()">↺</button>
-      </div>
-      <div class="page-scroll">
-        <h1 class="page-h1-sm">Saved Recipes</h1>
-        <p id="saved-sub" class="page-sub">0 recipes saved</p>
-        <div id="saved-list"></div>
-        <div id="saved-empty" class="empty-state" style="display:none">
-          <div class="empty-icon">🔖</div>
-          <h3>No saved recipes yet</h3>
-          <p>Generate a recipe and tap the bookmark to save it.</p>
-          <button class="btn-primary" onclick="switchPage('input')">Generate Recipe</button>
-        </div>
-        <div style="height:110px"></div>
-      </div>
-    </div>
-
-    <!-- PROFILE -->
-    <div id="page-profile" class="page">
-      <div class="profile-hero">
-        <div class="topbar" style="background:transparent">
-          <div class="brand"><div class="brand-icon glass-icon">🍽</div><span class="brand-name white">NutriSync</span></div>
-          <button class="icon-btn glass-btn" onclick="openModal('edit-profile')">✏️</button>
-        </div>
-        <div class="profile-avatar-wrap">
-          <div class="profile-avatar" id="profile-avatar">C</div>
-          <button class="avatar-edit-btn" onclick="openModal('edit-profile')">✏</button>
-        </div>
-        <h2 class="profile-name" id="profile-name">Chef</h2>
-        <p class="profile-bio" id="profile-bio">Nutrition Enthusiast • Healthy Eater</p>
-      </div>
-
-      <!-- Stats -->
-      <div class="profile-stats-card">
-        <div class="ps-item"><div class="ps-icon">🍽</div><div class="ps-val" id="pstat-gen">0</div><div class="ps-lbl">Recipes<br>Generated</div></div>
-        <div class="ps-item"><div class="ps-icon">🔖</div><div class="ps-val" id="pstat-saved">0</div><div class="ps-lbl">Saved<br>Recipes</div></div>
-        <div class="ps-item"><div class="ps-icon">📅</div><div class="ps-val" id="pstat-days">1</div><div class="ps-lbl">Days<br>Active</div></div>
-        <div class="ps-item"><div class="ps-icon">🔥</div><div class="ps-val" id="pstat-cal">2000</div><div class="ps-lbl">Calorie<br>Target</div></div>
-      </div>
-
-      <div class="page-scroll" style="padding-top:4px">
-        <h3 class="sec-title">Nutrition Goal</h3>
-        <div class="card" style="margin-top:10px" onclick="openModal('nutrition-goal')">
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
-            <span style="font-size:10px;font-weight:700;color:var(--green);letter-spacing:1px">CURRENT GOAL</span>
-            <span style="font-size:11px;color:var(--text3)">Tap to change →</span>
-          </div>
-          <div class="goal-chips-wrap" id="goal-chips"></div>
-        </div>
-
-        <h3 class="sec-title" style="margin-top:24px">Preferences</h3>
-        <div class="card menu-card" style="margin-top:10px">
-          <div class="toggle-row">
-            <div class="t-icon">🔔</div>
-            <div class="t-info"><div class="t-label">Push Notifications</div><div class="t-sub">Daily meal reminders</div></div>
-            <label class="tog"><input type="checkbox" checked /><span class="tog-slider"></span></label>
-          </div>
-          <div class="divider"></div>
-          <div class="toggle-row">
-            <div class="t-icon">🌙</div>
-            <div class="t-info"><div class="t-label">Dark Mode</div><div class="t-sub">Switch to dark theme</div></div>
-            <label class="tog"><input type="checkbox" id="dark-tog" onchange="toggleDark(this.checked)" /><span class="tog-slider"></span></label>
-          </div>
-        </div>
-
-        <h3 class="sec-title" style="margin-top:24px">Account</h3>
-        <div class="card menu-card" style="margin-top:10px">
-          <div class="menu-row" onclick="openModal('edit-profile')"><div class="m-icon" style="background:#2D6A4F15;color:#2D6A4F">👤</div><span>Edit Profile</span><span class="chev">›</span></div>
-          <div class="divider ml62"></div>
-          <div class="menu-row" onclick="openModal('nutrition-goal')"><div class="m-icon" style="background:#3B82F615;color:#3B82F6">💪</div><span>Nutrition Goals</span><span class="chev">›</span></div>
-          <div class="divider ml62"></div>
-          <div class="menu-row" onclick="openModal('recipe-history')"><div class="m-icon" style="background:#F59E0B15;color:#F59E0B">📜</div><span>Recipe History</span><span class="chev">›</span></div>
-          <div class="divider ml62"></div>
-          <div class="menu-row" onclick="shareApp()"><div class="m-icon" style="background:#52B78815;color:#52B788">📤</div><span>Share NutriSync</span><span class="chev">›</span></div>
-          <div class="divider ml62"></div>
-          <div class="menu-row" onclick="openModal('help')"><div class="m-icon" style="background:#9CA3AF15;color:#9CA3AF">❓</div><span>Help &amp; Support</span><span class="chev">›</span></div>
-          <div class="divider ml62"></div>
-          <div class="menu-row" onclick="openModal('privacy')"><div class="m-icon" style="background:#9CA3AF15;color:#9CA3AF">🔐</div><span>Privacy Policy</span><span class="chev">›</span></div>
-        </div>
-
-        <button class="btn-logout" onclick="confirmLogout()">🚪 Log Out</button>
-        <p class="version-lbl">NutriSync v1.0 • Powered by Gemini AI</p>
-        <div style="height:110px"></div>
-      </div>
-    </div>
-
-    <!-- CHAT -->
-    <div id="page-chat" class="page chat-page">
-      <div class="chat-topbar">
-        <button class="back-icon-btn" onclick="switchPage('home')">‹</button>
-        <div class="chat-bot-info">
-          <div class="chat-bot-avatar">✨</div>
-          <div>
-            <div class="chat-bot-name">NutriBot</div>
-            <div class="chat-bot-status">AI Nutritionist • Online</div>
-          </div>
+          <button class="btn-primary" style="max-width: 200px; background: var(--red);" onclick="logout()">Log Out</button>
         </div>
       </div>
-      <div class="chat-msgs" id="chat-msgs"></div>
-      <div class="chat-bar">
-        <textarea id="chat-input" rows="1" placeholder="Ask me about nutrition..."></textarea>
-        <button class="chat-send" id="chat-send" onclick="sendChat()">
-          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="white" stroke-width="2.5"><path d="M22 2L11 13"/><path d="M22 2L15 22 11 13 2 9l20-7z"/></svg>
-        </button>
-      </div>
-    </div>
 
-  </div><!-- /pages-wrap -->
-
-  <!-- Bottom Nav -->
-  <nav class="bottom-nav">
-    <button class="nav-btn active" data-pg="home" onclick="switchPage('home')"><span class="nav-ico">🏠</span><span class="nav-lbl">Home</span></button>
-    <button class="nav-btn" data-pg="input" onclick="switchPage('input')"><span class="nav-ico">🎤</span><span class="nav-lbl">Input</span></button>
-    <button class="nav-btn" data-pg="saved" onclick="switchPage('saved')"><span class="nav-ico">🔖</span><span class="nav-lbl">Saved</span></button>
-    <button class="nav-btn" data-pg="profile" onclick="switchPage('profile')"><span class="nav-ico">👤</span><span class="nav-lbl">Profile</span></button>
-  </nav>
-</div>
-
-<!-- ═══════════════════ MODALS ════════════════════ -->
-
-<!-- RECIPE DETAIL -->
-<div id="modal-recipe" class="modal" style="display:none">
-  <div class="modal-inner">
-    <div class="recipe-hero" id="recipe-hero">
-      <div class="recipe-hero-overlay"></div>
-      <button class="modal-back" onclick="closeModal('recipe')">‹</button>
-      <button class="modal-action-btn" id="save-btn" onclick="toggleSave()">🔖</button>
-      <div class="recipe-hero-content">
-        <div class="hero-tags">
-          <span class="chip chip-white">AI CUSTOM</span>
-          <span class="chip chip-amber" id="hero-time">15 MIN</span>
-        </div>
-        <h1 class="hero-name" id="hero-name">Recipe Name</h1>
-        <p class="hero-desc">A chef-curated recipe designed for your nutrition profile.</p>
-      </div>
-    </div>
-    <div class="recipe-body">
-      <div class="macro-grid" id="macro-grid"></div>
-      <div class="recipe-section">
-        <div class="rsec-hdr"><h3>Ingredients</h3><span class="badge" id="ing-count-badge">0 items</span></div>
-        <div id="modal-ings"></div>
-        <button class="btn-primary btn-full" style="margin-top:16px">🛒 Add to Grocery List</button>
-      </div>
-      <div class="recipe-section">
-        <h3>Instructions</h3>
-        <div id="modal-steps"></div>
-      </div>
-      <div class="recipe-section">
-        <h3>Serve with...</h3>
-        <div class="serve-scroll">
-          <div class="serve-card"><span class="serve-emoji">🥗</span><div><b>Garden Salad</b><p>Fresh &amp; light</p></div></div>
-          <div class="serve-card"><span class="serve-emoji">🥦</span><div><b>Roasted Veggies</b><p>15 min • 45 kcal</p></div></div>
-          <div class="serve-card"><span class="serve-emoji">✨</span><div><b>Lemon Quinoa</b><p>12 min • 220 kcal</p></div></div>
-        </div>
-      </div>
-      <div style="height:60px"></div>
     </div>
   </div>
-</div>
 
-<!-- SEARCH -->
-<div id="modal-search" class="modal" style="display:none">
-  <div class="modal-inner">
-    <div class="modal-plain-hdr">
-      <button class="modal-back-text" onclick="closeModal('search')">‹</button>
-      <div class="search-wrap"><span>🔍</span><input id="search-inp" type="text" placeholder="Search recipes..." oninput="runSearch()" autofocus /></div>
-    </div>
-    <div class="modal-scroll" id="search-res"><p class="hint-text">Start typing to search...</p></div>
-  </div>
-</div>
-
-<!-- NOTIFICATIONS -->
-<div id="modal-notifications" class="modal" style="display:none">
-  <div class="modal-inner">
-    <div class="modal-plain-hdr"><button class="modal-back-text" onclick="closeModal('notifications')">‹</button><h3>Notifications</h3></div>
-    <div class="modal-scroll">
-      <div class="notif-card"><span class="notif-ico">🍳</span><div><b>Time to cook!</b><p>Your daily reminder — check today's recipe suggestion.</p></div></div>
-      <div class="notif-card"><span class="notif-ico">💧</span><div><b>Hydration Alert</b><p>Remember to drink water with meals for better digestion.</p></div></div>
-      <div class="notif-card"><span class="notif-ico">✨</span><div><b>AI Recipe Ready</b><p>Generate your personalised recipe based on today's goals.</p></div></div>
-    </div>
-  </div>
-</div>
-
-<!-- EDIT PROFILE -->
-<div id="modal-edit-profile" class="modal" style="display:none">
-  <div class="modal-inner">
-    <div class="modal-plain-hdr">
-      <button class="modal-back-text" onclick="closeModal('edit-profile')">‹</button>
-      <h3>Edit Profile</h3>
-      <button class="save-text-btn" onclick="saveProfile()">Save</button>
-    </div>
-    <div class="modal-scroll" style="padding:20px">
-      <div class="edit-avatar" id="edit-avatar">C</div>
-      <div class="form-group"><label>Full Name</label><div class="input-wrap"><input id="edit-name" type="text" /></div></div>
-      <div class="form-group"><label>Bio</label><div class="input-wrap"><input id="edit-bio" type="text" /></div></div>
-      <div class="form-group"><label>Diet Tag</label><div class="input-wrap"><input id="edit-diet" type="text" /></div></div>
-    </div>
-  </div>
-</div>
-
-<!-- NUTRITION GOAL -->
-<div id="modal-nutrition-goal" class="modal" style="display:none">
-  <div class="modal-inner">
-    <div class="modal-plain-hdr">
-      <button class="modal-back-text" onclick="closeModal('nutrition-goal')">‹</button>
-      <h3>Nutrition Goals</h3>
-      <button class="save-text-btn" onclick="saveGoal()">Save</button>
-    </div>
-    <div class="modal-scroll" style="padding:20px">
-      <h3 class="sec-title">Select your goal</h3>
-      <div class="goal-sel" id="goal-sel"></div>
-      <h3 class="sec-title" style="margin-top:24px">Daily Calorie Target</h3>
-      <div class="input-wrap" style="margin-top:10px"><input id="cal-inp" type="number" placeholder="e.g. 2000" /></div>
-    </div>
-  </div>
-</div>
-
-<!-- RECIPE HISTORY -->
-<div id="modal-recipe-history" class="modal" style="display:none">
-  <div class="modal-inner">
-    <div class="modal-plain-hdr"><button class="modal-back-text" onclick="closeModal('recipe-history')">‹</button><h3>Recipe History</h3></div>
-    <div class="modal-scroll" style="padding:20px" id="hist-scroll">
-      <div id="hist-list"></div>
-      <div id="hist-empty" class="empty-state">
-        <div class="empty-icon">📜</div><h3>No history yet</h3><p>Start generating recipes to build your history.</p>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- RECOMMENDED -->
-<div id="modal-recommended" class="modal" style="display:none">
-  <div class="modal-inner">
-    <div class="modal-plain-hdr"><button class="modal-back-text" onclick="closeModal('recommended')">‹</button><h3>Recommended Recipes</h3></div>
-    <div class="modal-scroll" style="padding:20px"><div class="recipe-grid" id="rec-grid"></div></div>
-  </div>
-</div>
-
-<!-- HELP -->
-<div id="modal-help" class="modal" style="display:none">
-  <div class="modal-inner">
-    <div class="modal-plain-hdr"><button class="modal-back-text" onclick="closeModal('help')">‹</button><h3>Help &amp; Support</h3></div>
-    <div class="modal-scroll" style="padding:20px">
-      <div class="help-card"><h4>How to generate a recipe?</h4><p>Go to the Input tab, type your ingredients and tap "Add Ingredient", then hit "Generate AI Recipe".</p></div>
-      <div class="help-card"><h4>How to save a recipe?</h4><p>Open any recipe and tap the 🔖 bookmark button in the top-right corner.</p></div>
-      <div class="help-card"><h4>What is NutriBot?</h4><p>NutriBot is your AI nutrition assistant. Tap the green chat button on the home screen to start.</p></div>
-      <div class="help-card"><h4>Is my data private?</h4><p>Yes — all data is stored locally on your device only.</p></div>
-    </div>
-  </div>
-</div>
-
-<!-- PRIVACY -->
-<div id="modal-privacy" class="modal" style="display:none">
-  <div class="modal-inner">
-    <div class="modal-plain-hdr"><button class="modal-back-text" onclick="closeModal('privacy')">‹</button><h3>Privacy Policy</h3></div>
-    <div class="modal-scroll" style="padding:20px">
-      <p class="policy-p"><strong>Last updated:</strong> January 2025</p>
-      <p class="policy-p">NutriSync does not collect or sell your personal data. All profile data and saved recipes are stored locally.</p>
-      <h4>AI Services</h4>
-      <p class="policy-p">When generating recipes or using NutriBot, your ingredient list is sent securely to the Gemini AI backend. No personal information is included.</p>
-    </div>
-  </div>
-</div>
-
-<!-- LOGOUT CONFIRM -->
-<div id="modal-logout" class="dialog-overlay" style="display:none">
-  <div class="dialog">
-    <h3>Log Out?</h3>
-    <p>Your data will remain on this device.</p>
-    <div class="dialog-btns">
-      <button class="btn-cancel" onclick="closeModal('logout')">Cancel</button>
-      <button class="btn-danger" onclick="doLogout()">Log Out</button>
-    </div>
-  </div>
-</div>
-
-<!-- SNACKBAR -->
-<div id="snackbar" class="snackbar" style="display:none"></div>
-
-<script src="app.js"></script>
+  <script src="app.js"></script>
 </body>
 </html>

@@ -8,3 +8,7 @@ pydantic
 pydantic-settings
 requests
 groq
+sqlalchemy
+passlib[bcrypt]
+python-jose[cryptography]
+python-multipart
