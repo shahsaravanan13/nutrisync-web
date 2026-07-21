@@ -38,7 +38,7 @@ class ApiService {
         RecipeStep(stepNumber: 3, instruction: 'Add remaining ingredients, stir well and cook for 8-10 more minutes.'),
         RecipeStep(stepNumber: 4, instruction: 'Season with salt and pepper. Plate elegantly and serve warm.'),
       ],
-      nutritionFacts: Nutrition(
+      nutritionFacts: NutritionFacts(
         calories: 360.0 + ingredients.length * 20.0,
         protein: 22.0,
         carbohydrates: 34.0,
