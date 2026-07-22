@@ -106,7 +106,7 @@ class ApiService {
             headers: ApiConfig.headers,
             body: jsonEncode(requestBody),
           )
-          .timeout(const Duration(seconds: 15));
+          .timeout(ApiConfig.timeoutDuration);
 
       if (response.statusCode == 200) {
         final body = response.body.trim();
