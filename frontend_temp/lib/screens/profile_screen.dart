@@ -561,9 +561,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
         Navigator.push(context, MaterialPageRoute(builder: (_) => const RecipeHistoryScreen()));
         break;
       case 'share':
+        final size = MediaQuery.of(context).size;
         await Share.share(
           '🥗 Check out NutriSync — the AI-powered recipe & nutrition app!\n\nGenerate personalized recipes from your ingredients with accurate nutrition info.\n\nhttps://nutrisync-project-production.up.railway.app',
           subject: 'NutriSync - AI Recipe App',
+          sharePositionOrigin: Rect.fromLTWH(0, 0, size.width, size.height / 2),
         );
         break;
       case 'rate':
